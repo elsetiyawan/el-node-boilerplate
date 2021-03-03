@@ -5,6 +5,9 @@ const compress = require("compression");
 const cors = require("cors");
 const helmet = require("helmet");
 const { NotFound, ConvertError, ErrorHandler } = require("../middleware/error");
+const swaggerUI = require("swagger-ui-express");
+const swaggerDocs = require("./swagger");
+const { env } = require("./env");
 
 const app = express();
 
@@ -20,9 +23,11 @@ app.use(helmet());
 // enable cors
 app.use(cors());
 
-app.use("/test", (req, res) => {
-  res.status(201).json({ message: "OK" });
-});
+// swagger
+env !== "production" &&
+  app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+
+app.use("/v1", require("../routes"));
 
 // 404 handler
 app.use(NotFound);
